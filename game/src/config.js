@@ -14,7 +14,7 @@ export const WAVE = {
   perWave: 3,
   maxCount: 34,
   /** Seconds between spawn ticks; shrinks slightly as waves climb. */
-  spawnInterval: 0.9,
+  spawnInterval: 0.85,
   spawnIntervalMin: 0.35,
   /** Boss waves. */
   bossEvery: 5,
@@ -76,7 +76,9 @@ export const UPGRADES = [
   { id: 'swift', name: 'Ion Thrusters', desc: '+14% move speed', apply: (s) => { s.speed *= 1.14; } },
   { id: 'dash', name: 'Blink Capacitor', desc: '-30% dash cooldown', apply: (s) => { s.dashCooldown *= 0.7; } },
   { id: 'magnet', name: 'Tractor Web', desc: '+70% pickup magnet', apply: (s) => { s.magnet *= 1.7; } },
-  { id: 'hull', name: 'Ablative Plating', desc: '+30 max hull, repair 30', apply: (s) => { s.maxHull += 30; s.hull = Math.min(s.maxHull, s.hull + 30); } },
+  // Max hull stops growing at 220: endless mode must stay dangerous, and a
+  // run that drafts plating every wave should not become unkillable.
+  { id: 'hull', name: 'Ablative Plating', desc: '+30 max hull, repair 30', apply: (s) => { s.maxHull = Math.min(220, s.maxHull + 30); s.hull = Math.min(s.maxHull, s.hull + 30); } },
   { id: 'overdrive', name: 'Overdrive Core', desc: 'Kills charge overdrive faster', apply: (s) => { s.overdriveGain *= 1.6; } },
 ];
 

@@ -43,7 +43,12 @@ export function createInput(canvas) {
     event.preventDefault();
     if (event.repeat) return;
     keys.add(name);
-    if (name === 'confirm') queued |= ACTION_CONFIRM;
+    // Space is 'fire' but also confirms: the title and game-over screens
+    // both say "press Space", so Space must launch and restart, not just
+    // fire. (Queued once per press — repeats are ignored above — and the
+    // confirm action is only read on the title, over, victory and paused
+    // screens, so holding Space to fire in play is unaffected.)
+    if (name === 'confirm' || name === 'fire') queued |= ACTION_CONFIRM;
     else if (name === 'pause') queued |= ACTION_PAUSE;
     else if (name === 'mute') queued |= ACTION_MUTE;
     else if (name === 'restart') queued |= ACTION_RESTART;

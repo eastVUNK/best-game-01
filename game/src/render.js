@@ -238,6 +238,20 @@ export function createRenderer(canvas) {
       poly(ctx, 0, 0, e.radius, 6, 0);
       ctx.fill();
     }
+    // Gunner telegraph: a charging amber ring in the half-second before it
+    // fires, so the shot is dodgeable instead of a surprise.
+    if (e.kind === 'gunner' && e.fireTimer < 0.5) {
+      const charge = 1 - Math.max(0, e.fireTimer) / 0.5;
+      ctx.save();
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 0.3 + 0.6 * charge;
+      ctx.strokeStyle = '#fb923c';
+      ctx.lineWidth = 2 + 2 * charge;
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius + 7 + 5 * charge, 0, TAU);
+      ctx.stroke();
+      ctx.restore();
+    }
     ctx.restore();
     // Core dot + hull ticks for damaged enemies.
     ctx.save();
@@ -452,7 +466,23 @@ export function createRenderer(canvas) {
     ctx.restore();
   }
 
-  function drawTitle(state, time) {
+  function drawBanner(state) {
+    const b = state.banner;
+    if (!b) return;
+    const alpha = Math.min(1, b.timer / 0.5);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = '#22d3ee';
+    ctx.shadowBlur = 24;
+    ctx.fillStyle = '#ecfeff';
+    ctx.font = `900 54px ${FONT_DISPLAY}`;
+    ctx.fillText(b.text, FIELD.width / 2, 150);
+    ctx.restore();
+  }
+
+  function drawTitle(state, time, best) {
     // Ghost ship orbiting the logo.
     const cx = FIELD.width / 2;
     const cy = 300;
@@ -494,6 +524,11 @@ export function createRenderer(canvas) {
     ctx.font = `15px ${FONT}`;
     ctx.fillStyle = PALETTE.muted;
     ctx.fillText('Blast the swarm. Chain the combo. Survive all 10 waves.', cx, 252);
+    if (best > 0) {
+      ctx.fillStyle = '#ffd166';
+      ctx.font = `bold 16px ${FONT}`;
+      ctx.fillText(`BEST ${best.toLocaleString('en-US')}`, cx, 278);
+    }
 
     // Controls card.
     panel(cx - 330, 300, 660, 132);
@@ -667,7 +702,7 @@ export function createRenderer(canvas) {
     drawFloaters(state);
     ctx.restore();
 
-    if (screen === SCREEN_TITLE) drawTitle(state, time);
+    if (screen === SCREEN_TITLE) drawTitle(state, time, best);
     else if (screen === SCREEN_DRAFT) {
       drawHUD(state, best, muted);
       drawDraft(state, mouse);
@@ -681,6 +716,7 @@ export function createRenderer(canvas) {
       drawVictory(state);
     } else {
       drawHUD(state, best, muted);
+      drawBanner(state);
     }
   }
 

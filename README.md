@@ -22,7 +22,7 @@ Then open http://localhost:8080. No build step, no network requests: every file 
 - **Shift** — dash (brief shield)
 - **P** — pause · **M** — mute · **R** — restart
 
-Kills build a combo multiplier (up to ×4); shards are worth points; hearts repair hull; overdrive pickups double your fire rate. After each cleared wave, pick 1 of 3 upgrades: faster fire, twin barrels, heavier rounds, thrusters, dash recharge, magnet, plating, or overdrive cores.
+Kills build a combo multiplier (up to ×4); shards are worth points; hearts repair hull; overdrive pickups double your fire rate. Gunners flash an amber ring in the half-second before they fire, so their shots are dodgeable. After each cleared wave, pick 1 of 3 upgrades: faster fire, twin barrels, heavier rounds, thrusters, dash recharge, magnet, plating, or overdrive cores. Enemies grow tougher and faster from wave 6, and plating stops adding max hull at 220 — endless mode stays dangerous.
 
 ## Structure
 
@@ -40,9 +40,9 @@ Kills build a combo multiplier (up to ×4); shards are worth points; hearts repa
 ## Screenshots
 
 1. `1-title.jpg` — title screen
-2. `2-action.jpg` — mid-wave combat
+2. `2-action.jpg` — the HEX CORE boss fight (wave 5)
 3. `3-draft.jpg` — the upgrade draft after a cleared wave
-4. `4-boss.jpg` — the HEX CORE boss fight
+4. `4-over.jpg` — game over: run stats and restart
 
 ---
 

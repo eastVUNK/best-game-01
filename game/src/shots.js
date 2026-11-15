@@ -1,4 +1,4 @@
-// The screenshot scenes behind ?shot=title|play|draft|boss. Each one plays the
+// The screenshot scenes behind ?shot=title|play|draft|boss|over. Each one plays the
 // real rules forward from a fresh world, steered by a simple autopilot (keep
 // range from the nearest enemy, aim with a little lead, fire constantly, dash
 // out when something gets too close), so the frame is what a short game
@@ -10,7 +10,10 @@ import { SCREEN_DRAFT, SCREEN_OVER, SCREEN_PLAY, SCREEN_TITLE, SCREEN_VICTORY } 
 
 const TITLE_SECONDS = 6;
 const PLAY_SECONDS = 24;
-const BOSS_SECONDS = 14;
+// The boss frame is taken 8 s into the fight: the first orb bursts are
+// still on screen and the boss bar is nearly full, so the shot reads as a
+// fight in progress rather than a mop-up.
+const BOSS_SECONDS = 8;
 const MAX_PLAY_SECONDS = 240;
 
 /** Aim at the nearest enemy with a little bullet-travel lead. */

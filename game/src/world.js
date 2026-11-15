@@ -52,7 +52,11 @@ function buildWaveQueue(rng, wave) {
 
 function makeEnemy(rng, kind, wave, x, y) {
   const base = ENEMY[kind];
-  const scale = 1 + (wave - 1) * 0.05;
+  // Hull scales 5% a wave, plus 2% a wave past wave 5; speed adds 3% a wave
+  // past wave 5, so the late waves press harder instead of stalling out.
+  // (Probe: before this, even a no-dash casual bot won every seed.)
+  const scale = 1 + (wave - 1) * 0.05 + Math.max(0, wave - 5) * 0.02;
+  const speedScale = 1 + Math.max(0, wave - 5) * 0.03;
   const enemy = {
     kind,
     x, y,
@@ -60,7 +64,7 @@ function makeEnemy(rng, kind, wave, x, y) {
     radius: base.radius,
     hull: Math.round(base.hull * scale),
     maxHull: Math.round(base.hull * scale),
-    speed: base.speed * (0.9 + rng.next() * 0.2),
+    speed: base.speed * (0.9 + rng.next() * 0.2) * speedScale,
     score: base.score,
     shards: base.shards,
     color: base.color,
@@ -98,6 +102,7 @@ export function createWorld(rng) {
     spawnTimer: 0,
     draft: null,
     boss: null,
+    banner: null,
     player: null,
     bullets: [],
     enemies: [],
@@ -213,6 +218,11 @@ export function createWorld(rng) {
     state.spawnQueue = buildWaveQueue(rng, wave);
     state.spawnTimer = 0.6;
     state.draft = null;
+    // Wave banner: flashes over the playfield for the first ~1.6 s.
+    state.banner = {
+      text: wave % WAVE.bossEvery === 0 ? `WAVE ${wave} — HEX CORE` : `WAVE ${wave}`,
+      timer: 1.6,
+    };
   }
 
   function offerDraft() {
@@ -255,6 +265,7 @@ export function createWorld(rng) {
     state.spawnTimer = 0;
     state.draft = null;
     state.boss = null;
+    state.banner = null;
     state.player = freshPlayer();
     state.bullets = [];
     state.enemies = [];
@@ -325,6 +336,12 @@ export function createWorld(rng) {
       f.life -= dt;
       f.y -= 34 * dt;
       if (f.life <= 0) state.floaters.splice(i, 1);
+    }
+
+    // Wave banner ticks down (shown by render.js during play).
+    if (state.banner) {
+      state.banner.timer -= dt;
+      if (state.banner.timer <= 0) state.banner = null;
     }
 
     if (attract) {
@@ -489,6 +506,9 @@ export function createWorld(rng) {
         e.vx += -ny * Math.sin(e.phase * 1.3) * 40 * dt;
         e.vy += nx * Math.sin(e.phase * 1.3) * 40 * dt;
         e.fireTimer -= dt;
+        // Only count the shot down while the player is in range: an
+        // out-of-range gunner used to fire the instant you closed in, with
+        // no warning. (The renderer's telegraph reads this same timer.)
         if (e.fireTimer <= 0 && d < 520) {
           e.fireTimer = 2.3;
           state.orbs.push({
