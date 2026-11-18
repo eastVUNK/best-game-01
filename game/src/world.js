@@ -505,10 +505,10 @@ export function createWorld(rng) {
         e.vy += ny * toward * e.speed * 2 * dt;
         e.vx += -ny * Math.sin(e.phase * 1.3) * 40 * dt;
         e.vy += nx * Math.sin(e.phase * 1.3) * 40 * dt;
-        e.fireTimer -= dt;
         // Only count the shot down while the player is in range: an
         // out-of-range gunner used to fire the instant you closed in, with
         // no warning. (The renderer's telegraph reads this same timer.)
+        if (d < 520) e.fireTimer -= dt;
         if (e.fireTimer <= 0 && d < 520) {
           e.fireTimer = 2.3;
           state.orbs.push({

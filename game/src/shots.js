@@ -15,6 +15,10 @@ const PLAY_SECONDS = 24;
 // fight in progress rather than a mop-up.
 const BOSS_SECONDS = 8;
 const MAX_PLAY_SECONDS = 240;
+// The game-over scene plays a reckless run until it dies. The cap is
+// generous (900 s) because the run is long; the hull-skip below is what
+// actually guarantees it ends on a real game over instead of outliving it.
+const OVER_SECONDS = 900;
 
 /** Aim at the nearest enemy with a little bullet-travel lead. */
 function nearestEnemy(state) {
@@ -138,9 +142,14 @@ export function stageShot(name, world) {
       }
       return input;
     };
-    for (let i = 0; i < MAX_PLAY_SECONDS / STEP; i += 1) {
+    for (let i = 0; i < OVER_SECONDS / STEP; i += 1) {
       const events = world.step(STEP, reckless(world.state), false);
-      if (events & EVENT_DRAFT && world.state.draft) world.applyUpgrade(world.state.draft[0].id);
+      if (events & EVENT_DRAFT && world.state.draft) {
+        // Skip plating: a run that never takes hull dies on schedule, so
+        // the scene ends on a real game over instead of outliving the cap.
+        const pick = world.state.draft.find((u) => u.id !== 'hull') ?? world.state.draft[0];
+        world.applyUpgrade(pick.id);
+      }
       if (events & EVENT_OVER) break;
     }
     return { screen: SCREEN_OVER, best: world.state.score };
